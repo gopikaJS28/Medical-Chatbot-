@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediMind | Advanced Medical Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c5282; /* Deep Medical Blue */
+            --accent-color: #4299e1;
+            --bg-light: #f7fafc;
+            --white: #ffffff;
+            --text-dark: #2d3748;
+            --bot-bubble: #ebf8ff;
+            --user-bubble: #2c5282;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        /* Sidebar UI */
+        .sidebar {
+            width: 300px;
+            background: var(--primary-color);
+            color: var(--white);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .disclaimer-box {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            margin-top: auto;
+            border-left: 4px solid #ecc94b;
+        }
+
+        /* Chat Main Area */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--white);
+        }
+
+        .chat-header {
+            padding: 20px 40px;
+            border-bottom: 1px solid #edf2f7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #48bb78;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        #chat-window {
+            flex: 1;
+            padding: 30px 40px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Bubbles */
+        .message {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            line-height: 1.6;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background-color: var(--bot-bubble);
+            color: var(--primary-color);
+            border-bottom-left-radius: 2px;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--user-bubble);
+            color: var(--white);
+            border-bottom-right-radius: 2px;
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 30px 40px;
+            background: var(--white);
+            border-top: 1px solid #edf2f7;
+        }
+
+        .input-group {
+            display: flex;
+            background: var(--bg-light);
+            padding: 10px;
+            border-radius: 15px;
+            align-items: center;
+        }
+
+        input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 10px 15px;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .send-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .send-btn:hover {
+            background: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-heartbeat"></i> MediMind
+        </div>
+        <h3>Medical Assistant</h3>
+        <p style="opacity: 0.8; font-size: 0.9rem;">Your RAG-powered clinical companion.</p>
+        
+        <div class="disclaimer-box">
+            <strong><i class="fas fa-exclamation-triangle"></i> Disclaimer</strong><br>
+            This AI assistant is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment.
+        </div>
+    </div>
+
+    <div class="chat-area">
+        <div class="chat-header">
+            <div>
+                <h2 style="margin:0;">Clinical Support</h2>
+                <small><span class="status-dot"></span> System Online | PDF Context Loaded</small>
+            </div>
+            <i class="fas fa-user-md" style="font-size: 1.5rem; color: var(--primary-color);"></i>
+        </div>
+
+        <div id="chat-window">
+            <div class="message bot-message">
+                Hello! I have analyzed your medical documents. How can I assist you with clinical information today?
+            </div>
+        </div>
+
+        <div class="input-area">
+            <form id="chat-form" class="input-group">
+                <input type="text" id="user-input" placeholder="Ask about symptoms, treatments, or diagnosis..." autocomplete="off">
+                <button type="submit" class="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const chatForm = document.getElementById('chat-form');
+    const chatWindow = document.getElementById('chat-window');
+    const userInput = document.getElementById('user-input');
+
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msg = userInput.value;
+        if (!msg) return;
+
+        // Append User Message
+        appendMessage(msg, 'user-message');
+        userInput.value = '';
+
+        // Add "Thinking" indicator
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'message bot-message';
+        loadingDiv.innerText = 'Analyzing medical context...';
+        chatWindow.appendChild(loadingDiv);
+
+        try {
+            const response = await fetch('/get', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `msg=${encodeURIComponent(msg)}`
+            });
+            const data = await response.text();
+            
+            chatWindow.removeChild(loadingDiv);
+            appendMessage(data, 'bot-message');
+        } catch (error) {
+            chatWindow.removeChild(loadingDiv);
+            appendMessage("Sorry, I encountered an error. Please try again.", 'bot-message');
+        }
+    });
+
+    function appendMessage(text, className) {
+        const div = document.createElement('div');
+        div.className = `message ${className}`;
+        div.innerText = text;
+        chatWindow.appendChild(div);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+</script>
+
+</body>
+</html>
